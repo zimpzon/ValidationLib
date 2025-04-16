@@ -1,56 +1,53 @@
-﻿namespace ValidationLib
+﻿using System.Numerics;
+
+namespace ValidationLib
 {
-    public class ValidatorBase<T> : IValidator where T : class
+    public class ValidatorBase<T> where T : class
     {
         private readonly List<string> _messages = [];
-        private readonly T _target;
-        private List<Rule> _rules = [];
+		private string _currentMessage = string.Empty;
 
-        public ValidatorBase(T target)
+		public ValidatorBase()
         {
-            ArgumentNullException.ThrowIfNull(nameof(target));
-            _target = target;
         }
 
-        /// <summary>
-        /// Per rule: Left to right. When fail add message.
-        /// Default message needs property name.
-        /// </summary>
-        public bool Validate()
-        {
-            if (_stringRulesBuilders.Count == 0)
-                return true;
+		public async Task<ValidationResult> Validate()
+		{
+			return await Task.FromResult(new ValidationResult());
+		}
 
-            _stringRulesBuilders.l
-            _stringRulesBuilder.Run();
-            return _messages.Count == 0;
-        }
+		public bool IsValid
+			=> _messages.Count == 0;
 
-        public IEnumerable<string> Messages()
+		public IEnumerable<string> Messages()
         {
             return _messages;
         }
 
-        public async Task<bool> ValidateAsync()
-        {
-            return await Task.FromResult(false);
-        }
+		internal void AddCurrentMessage()
+		{
+			if (string.IsNullOrWhiteSpace(_currentMessage))
+				return;
 
-        /// <summary>
-        /// Make a Rule instance per Rule() call.
-        /// Builder ctor calls back to Rule class, adding to a list.
-        /// Validate() runs first to last.
-        /// We NEED dependency injection for some rules. So they must be registered as services.
-        /// How to call?
-        ///   PersonValidator(ValidatorRulePersonIsCustomer rule1)
-        ///     Rule(...).IsTrue(rule1());
-        ///  note registering concrete classes: cannot be mocked, need interface/base (absgract?) for that.
-        /// </summary>
-        internal protected StringRuleBuilder Rule(Func<T, string> valueGetter)
+			if (_messages.Exists(m => m == _currentMessage))
+				return;
+
+			_messages.Add(_currentMessage);
+		}
+
+		internal void SetCurrentMessage(string message)
+		{
+			_currentMessage = message;
+		}
+
+		public StringRuleBuilder Validate(string value)
         {
-            string value = valueGetter(_target);
-            string propertyName = 
-            return new StringRuleBuilder( value, currentMessage: string.Empty, _messages);
-        }
-    }
+            return new StringRuleBuilder(value, SetCurrentMessage, AddCurrentMessage);
+		}
+
+		public NumberRuleBuilder<TNumber> Validate<TNumber>(TNumber number) where TNumber : INumber<TNumber>
+		{
+			return new NumberRuleBuilder<TNumber>(number, SetCurrentMessage, AddCurrentMessage);
+		}
+	}
 }

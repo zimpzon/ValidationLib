@@ -2,76 +2,58 @@
 {
     public class StringRuleBuilder
     {
-        private readonly List<string> _messages;
-        private string _latestSetMessage;
-        private string _propertyName = string.Empty;
-        private readonly string _value;
+		private readonly string _value;
+		private readonly Action<string> _setCurrentMessage;
+		private readonly Action _addCurrentMessage;
 
-        internal StringRuleBuilder(string value, string currentMessage, List<string> messages)
+		internal StringRuleBuilder(string value, Action<string> setCurrentMessage, Action addCurrentMessage)
         {
-            ArgumentNullException.ThrowIfNull(nameof(messages));
             _value = value;
-            _latestSetMessage = currentMessage;
-            _messages = messages;
+            _setCurrentMessage = setCurrentMessage;
+            _addCurrentMessage = addCurrentMessage;
         }
 
-        private void AddMessage()
+		public StringRuleBuilder WithMessage(string message)
         {
-            string message = GetCurrentMessage();
-            if (string.IsNullOrWhiteSpace(message))
-                return;
-
-            if (_messages.Exists(m => m == message))
-                return;
-
-            _messages.Add(_latestSetMessage);
-        }
-
-        private void SetCurrentMessage(string message)
-        {
-            _latestSetMessage = message;
-        }
-
-        private string GetCurrentMessage()
-        {
-            // use default message in empty, remember propertyName.
-            return _latestSetMessage ?? string.Empty;
-        }
-
-        public StringRuleBuilder WithPropertyName(string propertyName)
-        {
-            _propertyName = propertyName;
+            _setCurrentMessage(message);
             return this;
         }
 
-        public StringRuleBuilder WithMessage(string message)
+        public StringRuleBuilder NotNullOrWhitespace()
         {
-            SetCurrentMessage(message);
+            if (string.IsNullOrWhiteSpace(_value)) _addCurrentMessage();
             return this;
         }
 
-        public StringRuleBuilder NotNullWhitespace()
-        {
-            if (string.IsNullOrWhiteSpace(_value))
-                AddMessage();
+		public StringRuleBuilder Contains(string contains)
+		{
+			if (!_value?.Contains(contains) ?? false) _addCurrentMessage();
+			return this;
+		}
 
-            return this;
+		public StringRuleBuilder LengthMax(int maxLength)
+        {
+            if (_value?.Length > maxLength) _addCurrentMessage();
+			return this;
         }
 
-        public StringRuleBuilder MaxLength(int maxLength)
+		public StringRuleBuilder LengthMin(int minLength)
+		{
+			if (_value?.Length < minLength) _addCurrentMessage();
+			return this;
+		}
+
+		public StringRuleBuilder LengthBetween(int minLength, int maxLength)
+		{
+            LengthMax(maxLength);
+            LengthMin(minLength);
+			return this;
+		}
+
+		public StringRuleBuilder IsTrue(Func<bool> func)
         {
-            if (_value.Length > maxLength)
-                AddMessage();
-
-            return this;
-        }
-
-        public StringRuleBuilder IsTrue(Func<bool> func)
-        {
-            if (!func())
-                AddMessage();
-
-            return this;
+            if (!func()) _addCurrentMessage();
+			return this;
         }
     }
 }
