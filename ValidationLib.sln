@@ -5,6 +5,8 @@ VisualStudioVersion = 17.13.35913.81 d17.13
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationLib", "ValidationLib\ValidationLib.csproj", "{58E84322-CB93-4032-803E-3BDCADD6A797}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationLibTest", "ValidationLibTest\ValidationLibTest.csproj", "{45189C47-6956-446D-A551-B70BDE749F47}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{58E84322-CB93-4032-803E-3BDCADD6A797}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{58E84322-CB93-4032-803E-3BDCADD6A797}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{58E84322-CB93-4032-803E-3BDCADD6A797}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45189C47-6956-446D-A551-B70BDE749F47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45189C47-6956-446D-A551-B70BDE749F47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45189C47-6956-446D-A551-B70BDE749F47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45189C47-6956-446D-A551-B70BDE749F47}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
