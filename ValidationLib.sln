@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35913.81 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidationLib", "ValidationLib\ValidationLib.csproj", "{58E84322-CB93-4032-803E-3BDCADD6A797}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58E84322-CB93-4032-803E-3BDCADD6A797}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58E84322-CB93-4032-803E-3BDCADD6A797}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58E84322-CB93-4032-803E-3BDCADD6A797}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58E84322-CB93-4032-803E-3BDCADD6A797}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FB772117-54F0-4548-A411-48C999810D67}
+	EndGlobalSection
+EndGlobal
