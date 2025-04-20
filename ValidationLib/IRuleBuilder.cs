@@ -1,7 +1,7 @@
 ﻿namespace ValidationLib
 {
-	internal interface IRuleBuilder
-	{
-		IEnumerable<Action> Steps { get; }
-	}
+    internal interface IRuleBuilder
+    {
+        void Run(object target, Action<string, string> onFailure);
+    }
 }

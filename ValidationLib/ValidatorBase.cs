@@ -1,66 +1,69 @@
-﻿using System.Numerics;
+﻿using System.Linq.Expressions;
+using System.Numerics;
 
 namespace ValidationLib
 {
     public class ValidatorBase<T> where T : class
     {
         private readonly List<string> _messages = [];
-		private string _currentMessage = string.Empty;
-		private readonly List<IRuleBuilder> _rules = [];
+        private readonly List<IRuleBuilder> _rules = [];
 
-		public ValidationResult Validate()
-		{
-			_messages.Clear();
-
-			foreach (var rule in _rules)
-			{
-				_currentMessage = string.Empty;
-				ValidateRule(rule);
-			};
-
-			var result = new ValidationResult()
-			{
-				IsValid = _messages.Count == 0,
-				Messages = _messages,
-			};
-
-			return result;
-		}
-
-		private static void ValidateRule(IRuleBuilder ruleBuilder)
-		{
-			foreach (var step in ruleBuilder.Steps)
-				step();
-		}
-
-		private void ReportCurrentMessage()
-		{
-			if (string.IsNullOrWhiteSpace(_currentMessage))
-				return;
-
-			if (_messages.Exists(m => m == _currentMessage))
-				return;
-
-			_messages.Add(_currentMessage);
-		}
-
-		private void SetCurrentMessage(string message)
-		{
-			_currentMessage = message;
-		}
-
-		public StringRuleBuilder RulesFor(string value)
+        public ValidationResult Validate(T target)
         {
-            var builder = new StringRuleBuilder(value, SetCurrentMessage, ReportCurrentMessage);
-			_rules.Add(builder);
-			return builder;
-		}
+            _messages.Clear();
 
-		public NumberRuleBuilder<TNumber> RulesFor<TNumber>(TNumber number) where TNumber : INumber<TNumber>
-		{
-			var builder = new NumberRuleBuilder<TNumber>(number, SetCurrentMessage, ReportCurrentMessage);
-			_rules.Add(builder);
-			return builder;
-		}
-	}
+            foreach (var rule in _rules)
+            {
+                ValidateRule(rule, target);
+            };
+
+            var result = new ValidationResult()
+            {
+                IsValid = _messages.Count == 0,
+                Messages = _messages,
+            };
+
+            return result;
+        }
+
+        private void ValidateRule(IRuleBuilder ruleBuilder, T target)
+        {
+            void OnFailure(string defaultMesage, string overriddenMessage)
+            {
+                string message = string.IsNullOrWhiteSpace(overriddenMessage) ?
+                    defaultMesage :
+                    overriddenMessage;
+
+                if (string.IsNullOrWhiteSpace(message))
+                    return;
+
+                if (_messages.Exists(m => m == message))
+                    return;
+
+                _messages.Add(message);
+            }
+
+            ruleBuilder.Run(target, OnFailure);
+        }
+
+        public StringRuleBuilder RulesFor(Expression<Func<T, string>> property)
+        {
+            if (property.Body is not MemberExpression member)
+                throw new ArgumentException($"{nameof(RulesFor)} must be called like this: x => x.SomeProperty");
+
+            var builder = new StringRuleBuilder(member.Member.Name);
+            _rules.Add(builder);
+            return builder;
+        }
+
+        public NumberRuleBuilder<TNumber> RulesFor<TNumber>(Expression<Func<T, TNumber>> property) where TNumber : INumber<TNumber>
+        {
+            if (property.Body is not MemberExpression member)
+                throw new ArgumentException($"{nameof(RulesFor)} must be called like this: x => x.SomeProperty");
+
+            var builder = new NumberRuleBuilder<TNumber>(member.Member.Name);
+            _rules.Add(builder);
+            return builder;
+        }
+    }
 }

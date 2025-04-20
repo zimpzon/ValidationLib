@@ -4,21 +4,19 @@ namespace ValidationLibTest
 {
     public class TestPersonValidator : ValidatorBase<TestPerson>
     {
-        public TestPersonValidator(TestPerson testPerson)
-		{
-			Validate(testPerson.Name).
-				WithMessage("name must not be empty").
-				NotNullOrWhitespace().
-				WithMessage("name must be between 2 and 20 characters").
-				LengthBetween(2, 20).
-				WithMessage("name must contain 'John'").
-				Contains("John");
+        public TestPersonValidator()
+        {
+            RulesFor(person => person.Name).
+                WithMessage("name must not be empty").
+                NotNullOrWhitespace().
+                WithMessage("name must be between 2 and 20 characters").
+                LengthBetween(2, 20).
+                WithDefaultMessage().
+                Contains("John");
 
-			Validate(testPerson.Age).
-				WithMessage("age must be between 20 and 200").
-				Between(20, 200);
-		}
-	}
+            RulesFor(person => person.Age).Between(20, 200);
+        }
+    }
 
     public class TestPerson
     {
