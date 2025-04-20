@@ -6,25 +6,34 @@ namespace ValidationLib
     {
         private readonly List<string> _messages = [];
 		private string _currentMessage = string.Empty;
+		private readonly List<IRuleBuilder> _rules = [];
 
-		public ValidatorBase()
-        {
-        }
-
-		public async Task<ValidationResult> Validate()
+		public ValidationResult Validate()
 		{
-			return await Task.FromResult(new ValidationResult());
+			_messages.Clear();
+
+			foreach (var rule in _rules)
+			{
+				_currentMessage = string.Empty;
+				ValidateRule(rule);
+			};
+
+			var result = new ValidationResult()
+			{
+				IsValid = _messages.Count == 0,
+				Messages = _messages,
+			};
+
+			return result;
 		}
 
-		public bool IsValid
-			=> _messages.Count == 0;
+		private static void ValidateRule(IRuleBuilder ruleBuilder)
+		{
+			foreach (var step in ruleBuilder.Steps)
+				step();
+		}
 
-		public IEnumerable<string> Messages()
-        {
-            return _messages;
-        }
-
-		internal void AddCurrentMessage()
+		private void ReportCurrentMessage()
 		{
 			if (string.IsNullOrWhiteSpace(_currentMessage))
 				return;
@@ -35,19 +44,23 @@ namespace ValidationLib
 			_messages.Add(_currentMessage);
 		}
 
-		internal void SetCurrentMessage(string message)
+		private void SetCurrentMessage(string message)
 		{
 			_currentMessage = message;
 		}
 
-		public StringRuleBuilder Validate(string value)
+		public StringRuleBuilder RulesFor(string value)
         {
-            return new StringRuleBuilder(value, SetCurrentMessage, AddCurrentMessage);
+            var builder = new StringRuleBuilder(value, SetCurrentMessage, ReportCurrentMessage);
+			_rules.Add(builder);
+			return builder;
 		}
 
-		public NumberRuleBuilder<TNumber> Validate<TNumber>(TNumber number) where TNumber : INumber<TNumber>
+		public NumberRuleBuilder<TNumber> RulesFor<TNumber>(TNumber number) where TNumber : INumber<TNumber>
 		{
-			return new NumberRuleBuilder<TNumber>(number, SetCurrentMessage, AddCurrentMessage);
+			var builder = new NumberRuleBuilder<TNumber>(number, SetCurrentMessage, ReportCurrentMessage);
+			_rules.Add(builder);
+			return builder;
 		}
 	}
 }
