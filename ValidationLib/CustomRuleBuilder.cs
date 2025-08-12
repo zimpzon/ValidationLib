@@ -1,24 +1,20 @@
-﻿using System.Numerics;
-
-namespace ValidationLib
+﻿namespace ValidationLib
 {
-    public class NumberRuleBuilder<T> : IRuleBuilder where T : INumber<T>
+    public class CustomRuleBuilder<T> : IRuleBuilder
     {
-        private readonly string _propertyName;
         private string _currentMessage = string.Empty;
         private readonly List<Action> _steps = [];
 
         private Action<string, string> _onFailure = (_, _) => { };
-        private T _value = T.Zero;
+        private T _target = default!;
 
-        internal NumberRuleBuilder(string propertyName)
+        internal CustomRuleBuilder()
         {
-            _propertyName = propertyName;
         }
 
         public void Run(object target, Action<string, string> onFailure)
         {
-            _value = (T)Util.GetPropertyValueObject(_propertyName, target);
+            _target = (T)target;
             _onFailure = onFailure;
             _currentMessage = string.Empty;
 
@@ -33,24 +29,25 @@ namespace ValidationLib
             _onFailure(defaultMessage, _currentMessage);
         }
 
-        public NumberRuleBuilder<T> WithMessage(string message)
+        public CustomRuleBuilder<T> WithMessage(string message)
         {
             _steps.Add(() => _currentMessage = message);
             return this;
         }
 
-        public NumberRuleBuilder<T> WithDefaultMessage()
+        public CustomRuleBuilder<T> WithDefaultMessage()
         {
             _steps.Add(() => _currentMessage = string.Empty);
             return this;
         }
 
-        public NumberRuleBuilder<T> Between(T min, T max)
+        public CustomRuleBuilder<T> Satisfies(Func<T, (bool success, string errorMessage)> predicate)
         {
             _steps.Add(() =>
             {
-                if (_value < min || _value > max)
-                    Failure($"'{_propertyName}': must be between {min} and {max}, actual: {_value}");
+                (bool success, string errorMessage) = predicate(_target);
+                if (!success)
+                    Failure(errorMessage ?? $"Custom validation failed");
             });
             return this;
         }
