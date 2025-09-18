@@ -15,7 +15,7 @@ namespace ValidationLib
             foreach (var rule in _rules)
             {
                 ValidateRule(rule, target);
-            };
+            }
 
             var result = new ValidationResult()
             {
@@ -62,6 +62,13 @@ namespace ValidationLib
                 throw new ArgumentException($"{nameof(RulesFor)} must be called like this: x => x.SomeProperty");
 
             var builder = new NumberRuleBuilder<TNumber>(member.Member.Name);
+            _rules.Add(builder);
+            return builder;
+        }
+
+        public CustomRuleBuilder<T> WithCustomRules()
+        {
+            var builder = new CustomRuleBuilder<T>();
             _rules.Add(builder);
             return builder;
         }
