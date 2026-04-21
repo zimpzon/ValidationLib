@@ -8,10 +8,6 @@
         private Action<string, string> _onFailure = (_, _) => { };
         private T _target = default!;
 
-        internal CustomRuleBuilder()
-        {
-        }
-
         public void Run(object target, Action<string, string> onFailure)
         {
             _target = (T)target;
